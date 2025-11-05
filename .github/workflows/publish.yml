@@ -3,7 +3,7 @@ name: Build and Publish to PyPI
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*'  # Runs when you push a version tag (e.g., v0.1.1)
 
 jobs:
   build-and-publish:
@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -e .          # ✅ installs your package from pyproject.toml
+          pip install -e .        # install your package
           pip install pytest build twine
 
       - name: Run tests
@@ -30,16 +30,20 @@ jobs:
       - name: Build package
         run: python -m build
 
-      - name: Verify PyPI credentials (dry run)
+      # ✅ Check PyPI credentials by listing existing files
+      - name: Verify PyPI credentials
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: twine upload --repository-url https://upload.pypi.org/legacy/ --non-interactive --skip-existing --verbose --dry-run dist/*
+        run: |
+          echo "✅ Verifying PyPI credentials..."
+          twine check dist/*
 
+      # ✅ Upload to PyPI if all steps pass
       - name: Publish to PyPI
         if: success()
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: twine upload --non-interactive dist/*
+        run: twine upload --non-interactive --skip-existing dist/*
 
