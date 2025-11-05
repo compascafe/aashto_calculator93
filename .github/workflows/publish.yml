@@ -3,7 +3,7 @@ name: Build and Publish to PyPI
 on:
   push:
     tags:
-      - 'v*'  # Runs when you push a tag like v0.1.0
+      - 'v*'
 
 jobs:
   build-and-publish:
@@ -18,9 +18,11 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install build tools
+      - name: Install dependencies
         run: |
-          pip install --upgrade build twine pytest
+          pip install --upgrade pip
+          pip install -e .          # ✅ installs your package from pyproject.toml
+          pip install pytest build twine
 
       - name: Run tests
         run: pytest
